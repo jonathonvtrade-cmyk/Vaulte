@@ -62,6 +62,13 @@ export default function ProfilePage() {
   const [editSocials,    setEditSocials]   = useState([{ platform:"Instagram", username:"" },{ platform:"TikTok", username:"" },{ platform:"Twitter", username:"" }])
   const [saveLoading,    setSaveLoading]   = useState(false)
   const [uploading,      setUploading]     = useState(false)
+  const [photoPreview,   setPhotoPreview]  = useState(null)
+
+  /* Name edit */
+  const [editingName,    setEditingName]   = useState(false)
+  const [editFirstName,  setEditFirstName] = useState("")
+  const [editLastName,   setEditLastName]  = useState("")
+  const [nameSaving,     setNameSaving]    = useState(false)
 
   /* Admin panel */
   const [showAnnounce,    setShowAnnounce]    = useState(false)
@@ -157,17 +164,42 @@ export default function ProfilePage() {
   const uploadPhoto = async (e) => {
     const file = e.target.files?.[0]
     if (!file || !user) return
+    // Validate type and size (max 2 MB)
+    const allowed = ["image/jpeg","image/jpg","image/png","image/gif","image/webp"]
+    if (!allowed.includes(file.type)) { alert("Please upload a JPG, PNG, GIF or WebP image."); return }
+    if (file.size > 2 * 1024 * 1024) { alert("Image must be 2 MB or smaller."); return }
+    // Show preview immediately
+    const previewUrl = URL.createObjectURL(file)
+    setPhotoPreview(previewUrl)
     setUploading(true)
-    const ext  = file.name.split(".").pop()
-    const path = `avatars/${user.id}/avatar.${ext}`
-    const { error } = await supabase.storage.from("avatars").upload(path, file, { upsert:true })
+    // Path inside the "avatars" bucket (no "avatars/" prefix — that IS the bucket name)
+    const ext  = file.name.split(".").pop().toLowerCase()
+    const path = `${user.id}/avatar.${ext}`
+    const { error } = await supabase.storage.from("avatars").upload(path, file, { upsert:true, contentType: file.type })
     if (!error) {
       const { data } = supabase.storage.from("avatars").getPublicUrl(path)
-      const url = data.publicUrl
+      const url = data.publicUrl + `?t=${Date.now()}` // cache-bust
       await supabase.from("profiles").update({ avatar_url:url }).eq("id",user.id)
       setProfile(prev => ({ ...prev, avatar_url:url }))
+    } else {
+      // Upload failed — clear preview
+      setPhotoPreview(null)
+      console.error("Avatar upload error:", error)
     }
     setUploading(false)
+  }
+
+  const saveName = async () => {
+    if (!user || !editFirstName.trim()) return
+    setNameSaving(true)
+    await supabase.from("profiles").update({
+      first_name: editFirstName.trim(),
+      last_name:  editLastName.trim(),
+      last_name_changed_at: new Date().toISOString(),
+    }).eq("id", user.id)
+    setProfile(prev => ({ ...prev, first_name: editFirstName.trim(), last_name: editLastName.trim(), last_name_changed_at: new Date().toISOString() }))
+    setNameSaving(false)
+    setEditingName(false)
   }
 
   const sendAnnouncement = async () => {
@@ -549,8 +581,12 @@ export default function ProfilePage() {
               <div style={{ position:"absolute", inset:"-9px", borderRadius:"50%", border:"2px solid transparent", borderBottomColor:"#3a0000", borderLeftColor:"#3a0000", animation:"spin-ccw 3.5s linear infinite" }} />
 
               {/* Photo or initials */}
-              {avatarUrl ? (
-                <img src={avatarUrl} alt="avatar" style={{ width:"72px", height:"72px", borderRadius:"50%", objectFit:"cover", border:"2px solid #d00000" }} />
+              {(photoPreview || avatarUrl) ? (
+                <img
+                  src={photoPreview || avatarUrl}
+                  alt="avatar"
+                  style={{ width:"72px", height:"72px", borderRadius:"50%", objectFit:"cover", border:"2px solid #d00000", opacity: uploading ? 0.5 : 1, transition:"opacity 0.2s" }}
+                />
               ) : (
                 <div style={{ width:"72px", height:"72px", borderRadius:"50%", background:"#1a0000", border:"2px solid #d00000", display:"flex", alignItems:"center", justifyContent:"center", fontSize:"22px", fontWeight:900, color:"#d00000" }}>
                   {inits}
@@ -561,17 +597,74 @@ export default function ProfilePage() {
               <button
                 onClick={()=>fileRef.current?.click()}
                 disabled={uploading}
-                style={{ position:"absolute", bottom:0, right:0, width:"22px", height:"22px", borderRadius:"50%", background:"#d00000", border:"2px solid #080808", cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center", fontSize:"10px" }}
-                title="Upload photo"
-              >📷</button>
-              <input ref={fileRef} type="file" accept="image/*" style={{ display:"none" }} onChange={uploadPhoto} />
+                style={{ position:"absolute", bottom:0, right:0, width:"24px", height:"24px", borderRadius:"50%", background: uploading ? "#555" : "#d00000", border:"2px solid #080808", cursor: uploading ? "not-allowed" : "pointer", display:"flex", alignItems:"center", justifyContent:"center", fontSize:"11px" }}
+                title="Upload photo — JPG PNG GIF max 2MB"
+              >
+                {uploading ? "⏳" : "📷"}
+              </button>
+              <input ref={fileRef} type="file" accept="image/jpeg,image/jpg,image/png,image/gif,image/webp" style={{ display:"none" }} onChange={uploadPhoto} />
+            </div>
+
+            {/* Upload label */}
+            <div style={{ fontSize:"9px", color:"#333", marginBottom:"8px", letterSpacing:"0.06em" }}>
+              Upload a profile photo — JPG PNG GIF max 2MB
             </div>
 
             {/* Name + badges */}
-            <div style={{ display:"flex", alignItems:"center", justifyContent:"center", gap:"6px", marginBottom:"3px", flexWrap:"wrap" }}>
-              <span style={{ fontSize:"15px", fontWeight:800, color:"white" }}>{firstName} {lastName}</span>
-              {isVerified && <VerifiedBadge size={16} />}
-            </div>
+            {editingName ? (
+              <div style={{ width:"100%", display:"flex", flexDirection:"column", gap:"6px", marginBottom:"8px" }}>
+                <input
+                  value={editFirstName}
+                  onChange={e=>setEditFirstName(e.target.value)}
+                  placeholder="First name"
+                  style={{ background:"#0d0d0d", border:"1px solid #d00000", color:"white", padding:"7px 10px", borderRadius:"6px", fontSize:"12px", outline:"none", fontFamily:"'Inter',sans-serif", textAlign:"center" }}
+                />
+                <input
+                  value={editLastName}
+                  onChange={e=>setEditLastName(e.target.value)}
+                  placeholder="Last name"
+                  style={{ background:"#0d0d0d", border:"1px solid #1f1f1f", color:"white", padding:"7px 10px", borderRadius:"6px", fontSize:"12px", outline:"none", fontFamily:"'Inter',sans-serif", textAlign:"center" }}
+                />
+                <div style={{ display:"flex", gap:"6px", justifyContent:"center" }}>
+                  <button onClick={()=>setEditingName(false)} style={{ background:"transparent", border:"1px solid #333", color:"#555", padding:"5px 10px", borderRadius:"6px", fontSize:"11px", cursor:"pointer", fontFamily:"'Inter',sans-serif" }}>Cancel</button>
+                  <button onClick={saveName} disabled={nameSaving} style={{ background:"#d00000", color:"white", border:"none", padding:"5px 12px", borderRadius:"6px", fontSize:"11px", fontWeight:800, cursor:"pointer", fontFamily:"'Inter',sans-serif", opacity:nameSaving?0.6:1 }}>
+                    {nameSaving?"Saving…":"Save"}
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <>
+                <div style={{ display:"flex", alignItems:"center", justifyContent:"center", gap:"6px", marginBottom:"3px", flexWrap:"wrap" }}>
+                  <span style={{ fontSize:"15px", fontWeight:800, color:"white" }}>{firstName} {lastName}</span>
+                  {isVerified && <VerifiedBadge size={16} />}
+                </div>
+                {/* Name change eligibility */}
+                {(() => {
+                  const lastChanged = profile?.last_name_changed_at
+                  const daysSince = lastChanged ? Math.floor((Date.now() - new Date(lastChanged)) / 86400000) : 999
+                  const canChange = daysSince >= 365
+                  const daysLeft  = 365 - daysSince
+                  return (
+                    <div style={{ marginBottom:"4px" }}>
+                      {canChange ? (
+                        <button
+                          onClick={()=>{ setEditFirstName(firstName); setEditLastName(lastName); setEditingName(true) }}
+                          style={{ background:"transparent", border:"1px solid #222", color:"#444", padding:"3px 10px", borderRadius:"99px", fontSize:"10px", cursor:"pointer", fontFamily:"'Inter',sans-serif", transition:"all 0.2s" }}
+                          onMouseEnter={e=>{ e.currentTarget.style.borderColor="#d00000"; e.currentTarget.style.color="#d00000" }}
+                          onMouseLeave={e=>{ e.currentTarget.style.borderColor="#222";    e.currentTarget.style.color="#444"   }}
+                        >
+                          Edit name
+                        </button>
+                      ) : (
+                        <div style={{ fontSize:"10px", color:"#333" }}>
+                          Name change in {daysLeft}d
+                        </div>
+                      )}
+                    </div>
+                  )
+                })()}
+              </>
+            )}
 
             {/* Founder tag */}
             {isAdmin && (

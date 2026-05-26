@@ -1,0 +1,21 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm install *)",
+      "Bash(vercel --version)",
+      "Bash(npm run *)",
+      "Bash(npx vercel *)",
+      "Bash(ls /mnt/c/Users/jonat/vaulte/)",
+      "Bash(cat /dev/null > \"C:\\\\Users\\\\jonat\\\\vaulte\\\\.gitignore\" 2>&1; echo \"done\")",
+      "Bash(git init *)",
+      "Bash(git config *)",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)",
+      "mcp__Claude_in_Chrome__tabs_context_mcp",
+      "WebFetch(domain:vaulte-topaz.vercel.app)",
+      "Bash(curl -s \"https://vaulte-topaz.vercel.app\")",
+      "Bash(curl -s \"https://vaulte-topaz.vercel.app/assets/index-CfYReBul.js\")",
+      "Bash(curl -s \"https://vaulte-topaz.vercel.app/assets/index-CApIHXbz.js\")"
+    ]
+  }
+}

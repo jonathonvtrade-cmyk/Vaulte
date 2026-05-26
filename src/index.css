@@ -143,6 +143,79 @@ body {
   50%       { opacity: 0.5; transform: scale(1.4); }
 }
 
+/* ── Activity ticker ── */
+@keyframes ticker-move {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+.ticker-track { animation: ticker-move 50s linear infinite; }
+.ticker-track:hover { animation-play-state: paused; }
+
+@keyframes ticker-dot-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%       { opacity: 0.4; transform: scale(1.4); }
+}
+.ticker-dot { animation: ticker-dot-pulse 1.5s ease-in-out infinite; }
+
+/* ── Hero floating cards ── */
+@keyframes float-card-1 {
+  0%, 100% { transform: translateY(0px); }
+  50%       { transform: translateY(-14px); }
+}
+@keyframes float-card-2 {
+  0%, 100% { transform: translateY(0px) translateX(0px); }
+  50%       { transform: translateY(10px) translateX(-8px); }
+}
+@keyframes float-card-3 {
+  0%, 100% { transform: translateY(0px); }
+  33%       { transform: translateY(12px); }
+  66%       { transform: translateY(-6px); }
+}
+@keyframes float-card-4 {
+  0%, 100% { transform: translateX(0px); }
+  50%       { transform: translateX(10px) translateY(-8px); }
+}
+.hero-card-1 { animation: float-card-1 5s  ease-in-out infinite; }
+.hero-card-2 { animation: float-card-2 6.5s ease-in-out infinite; }
+.hero-card-3 { animation: float-card-3 4.5s ease-in-out infinite; }
+.hero-card-4 { animation: float-card-4 5.5s ease-in-out infinite; }
+
+/* Hide float cards below 1200px */
+.hero-floats { display: block; }
+@media (max-width: 1199px) { .hero-floats { display: none !important; } }
+
+/* ── Hero scanline ── */
+@keyframes scanline-move {
+  0%   { top: -4px; opacity: 0; }
+  5%   { opacity: 1; }
+  95%  { opacity: 1; }
+  100% { top: 100%; opacity: 0; }
+}
+.hero-scanline {
+  position: absolute;
+  left: 0; right: 0; height: 2px;
+  background: linear-gradient(to right, transparent 0%, rgba(208,0,0,0.18) 30%, rgba(208,0,0,0.25) 50%, rgba(208,0,0,0.18) 70%, transparent 100%);
+  animation: scanline-move 7s linear infinite;
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* ── Logo neon E glow ── */
+@keyframes logo-neon {
+  0%, 100% { text-shadow: 0 0 8px #d00000, 0 0 20px rgba(208,0,0,0.5), 0 0 40px rgba(208,0,0,0.2); }
+  50%       { text-shadow: 0 0 4px #d00000, 0 0 8px rgba(208,0,0,0.3); }
+}
+.logo-neon-e { animation: logo-neon 2s ease-in-out infinite; }
+
+/* ── Logo flicker ── */
+@keyframes logo-flicker {
+  0%, 86%, 94%, 100% { opacity: 1; }
+  89%                 { opacity: 0.4; }
+  91%                 { opacity: 1; }
+  92%                 { opacity: 0.3; }
+}
+.logo-flicker { animation: logo-flicker 4s ease-in-out infinite; }
+
 /* ── Mobile overrides (max-width: 768px) ── */
 @media (max-width: 768px) {
   /* Navbar */

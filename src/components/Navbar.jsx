@@ -107,8 +107,8 @@ export default function Navbar() {
     >
       {/* ── Logo ── */}
       <Link to="/" style={{ textDecoration: "none" }}>
-        <div style={{ fontSize: "22px", fontWeight: 900, letterSpacing: "-1px", color: "white" }}>
-          VAULT<span style={{ color: "#d00000" }}>E</span>
+        <div className="logo-flicker" style={{ fontSize: "22px", fontWeight: 900, letterSpacing: "-1px", color: "white" }}>
+          VAULT<span className="logo-neon-e" style={{ color: "#d00000" }}>E</span>
         </div>
       </Link>
 

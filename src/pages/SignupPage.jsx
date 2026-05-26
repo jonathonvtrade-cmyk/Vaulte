@@ -27,14 +27,28 @@ export default function SignupPage() {
     e.preventDefault()
     setError("")
     setLoading(true)
-    const { error } = await supabase.auth.signUp({
+    const { data: signUpData, error } = await supabase.auth.signUp({
       email,
       password,
       options: { data: { first_name: firstName, last_name: lastName } },
     })
+    if (error) {
+      setLoading(false)
+      setError(error.message)
+      return
+    }
+    // Manually upsert profiles row so it always exists from day one
+    if (signUpData?.user?.id) {
+      await supabase.from("profiles").upsert({
+        id:         signUpData.user.id,
+        first_name: firstName.trim(),
+        last_name:  lastName.trim(),
+        plan:       "free",
+        role:       "user",
+      }, { onConflict: "id" })
+    }
     setLoading(false)
-    if (error) setError(error.message)
-    else navigate("/onboarding")
+    navigate("/onboarding")
   }
 
   return (
