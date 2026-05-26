@@ -522,14 +522,14 @@ export default function ProfilePage() {
     </div>
   )
 
-  const sectionContent = {
-    Overview:       renderOverview(),
-    "My Roadmap":   renderRoadmap(),
-    "AI Mentor":    renderAIMentor(),
-    Community:      renderCommunity(),
-    About:          renderAbout(),
-    Settings:       renderSettings(),
-    Billing:        renderBilling(),
+  const sectionRenderers = {
+    Overview:       renderOverview,
+    "My Roadmap":   renderRoadmap,
+    "AI Mentor":    renderAIMentor,
+    Community:      renderCommunity,
+    About:          renderAbout,
+    Settings:       renderSettings,
+    Billing:        renderBilling,
   }
 
   return (
@@ -640,7 +640,7 @@ export default function ProfilePage() {
 
         {/* ── Main content ── */}
         <div style={{ flex:1, padding:"48px 56px", overflowY:"auto" }}>
-          {sectionContent[activeSection]}
+          {(sectionRenderers[activeSection] || renderOverview)()}
         </div>
       </div>
 
