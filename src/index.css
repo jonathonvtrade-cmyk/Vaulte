@@ -1,0 +1,213 @@
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  width: 100%;
+  height: 100%;
+  background: #0d0d0d;
+}
+
+body {
+  width: 100%;
+  min-height: 100vh;
+  background: #0d0d0d;
+  overflow-x: hidden;
+  font-family: 'Inter', sans-serif;
+}
+
+/* ── Global dot matrix background ── */
+.dot-bg {
+  background-color: #0d0d0d;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24'%3E%3Ccircle cx='1' cy='1' r='1' fill='%23d00000' fill-opacity='0.08'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+}
+
+#root {
+  width: 100%;
+  min-height: 100vh;
+}
+
+/* ── Animations ── */
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0; }
+}
+
+@keyframes marquee {
+  from { transform: translateX(0);    }
+  to   { transform: translateX(-50%); }
+}
+
+/* Page fade-in */
+@keyframes page-fade-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0);   }
+}
+.page-enter { animation: page-fade-in 0.3s ease forwards; }
+
+/* Welcome popup — neon pulsing border */
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 0   0   rgba(208,0,0,0);    border-color: #3a0000; }
+  50%       { box-shadow: 0 0 32px 8px rgba(208,0,0,0.18); border-color: #d00000; }
+}
+
+/* Slide content fade-in */
+@keyframes slide-fade-in {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0);    }
+}
+
+/* Paywall / general modal scale-in */
+@keyframes modal-in {
+  from { opacity: 0; transform: scale(0.92); }
+  to   { opacity: 1; transform: scale(1);    }
+}
+
+/* Pro card shimmer */
+@keyframes pro-shimmer {
+  0%, 100% { box-shadow: 0 0 12px rgba(208,0,0,0.25), 0 0 0 1.5px #d00000; }
+  50%       { box-shadow: 0 0 32px rgba(208,0,0,0.55), 0 0 0 1.5px #ff5555; }
+}
+
+/* Login/Signup card shimmer */
+@keyframes card-shimmer {
+  0%, 100% { box-shadow: 0 0 0   0 rgba(208,0,0,0);    }
+  50%       { box-shadow: 0 0 24px 0 rgba(208,0,0,0.1); }
+}
+
+/* Explore page heading underline */
+@keyframes underline-slide {
+  from { width: 0;    }
+  to   { width: 100%; }
+}
+
+/* Avatar spinning rings (profile page) */
+@keyframes spin-cw  { from { transform: rotate(0deg);   } to { transform: rotate(360deg);  } }
+@keyframes spin-ccw { from { transform: rotate(0deg);   } to { transform: rotate(-360deg); } }
+
+/* Pulsing red dot (AI MENTOR LIVE) */
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1;   transform: scale(1);   }
+  50%       { opacity: 0.4; transform: scale(1.6); }
+}
+
+/* Ask AI nav link — blue text-shadow glow pulse */
+@keyframes ask-ai-glow {
+  0%, 100% { text-shadow: 0 0 6px rgba(0,136,255,0.4), 0 0 12px rgba(0,136,255,0.2); }
+  50%       { text-shadow: 0 0 14px rgba(0,136,255,0.8), 0 0 28px rgba(0,136,255,0.4); }
+}
+.ask-ai-link { animation: ask-ai-glow 2.4s ease-in-out infinite; }
+
+/* General Support sidebar card — blue border glow */
+@keyframes general-support-glow {
+  0%, 100% { box-shadow: 0 0 8px rgba(0,136,255,0.15),  0 0 0 1px rgba(0,136,255,0.20); }
+  50%       { box-shadow: 0 0 18px rgba(0,136,255,0.35), 0 0 0 1px rgba(0,136,255,0.50); }
+}
+.general-support-card { animation: general-support-glow 2.5s ease-in-out infinite; }
+
+/* Roadmap progress bar fill */
+@keyframes bar-fill {
+  from { width: 0; }
+}
+
+/* Niche progress bar (profile) */
+@keyframes progress-fill {
+  from { width: 0; }
+}
+
+/* Founder green neon tag pulse */
+@keyframes founder-glow {
+  0%, 100% { box-shadow: 0 0 6px  rgba(0,255,65,0.25), 0 0 0 1px #00ff41; }
+  50%       { box-shadow: 0 0 18px rgba(0,255,65,0.6),  0 0 0 1px #00ff41; }
+}
+.founder-tag {
+  background: #001a00;
+  border: 1px solid #00ff41;
+  color: #00ff41;
+  animation: founder-glow 2s ease-in-out infinite;
+}
+
+/* Floating message bubble — gentle up/down float */
+@keyframes float-bubble {
+  0%, 100% { transform: translateY(0);   }
+  50%       { transform: translateY(-6px); }
+}
+.float-bubble { animation: float-bubble 3s ease-in-out infinite; }
+
+/* Online presence dot pulse */
+@keyframes online-dot {
+  0%, 100% { opacity: 1; transform: scale(1);    }
+  50%       { opacity: 0.5; transform: scale(1.4); }
+}
+
+/* ── Mobile overrides (max-width: 768px) ── */
+@media (max-width: 768px) {
+  /* Navbar */
+  .m-navbar      { padding: 16px 20px !important; }
+  .m-nav-links   { display: none !important; }
+  .m-nav-join    { display: flex !important; }
+
+  /* Hero */
+  .m-hero {
+    padding: 44px 20px 36px !important;
+    max-width: 100% !important;
+  }
+  .m-hero-title {
+    font-size: 38px !important;
+    letter-spacing: -1.5px !important;
+    min-height: auto !important;
+    line-height: 1.12 !important;
+  }
+  .m-hero-sub   { font-size: 14px !important; max-width: 100% !important; }
+  .m-hero-input { max-width: 100% !important; }
+
+  /* Marquee label */
+  .m-marquee-label { padding-left: 20px !important; }
+
+  /* How It Works header */
+  .m-hiw-header  { padding: 0 20px !important; margin-bottom: 44px !important; }
+  .m-hiw-heading { font-size: 30px !important; letter-spacing: -1px !important; }
+
+  /* Steps */
+  .m-step { padding: 44px 20px !important; }
+  .m-step-inner {
+    flex-direction: column !important;
+    gap: 36px !important;
+    align-items: stretch !important;
+  }
+  .m-step-title   { font-size: 32px !important; letter-spacing: -1.5px !important; }
+  .m-step-desc    { max-width: 100% !important; }
+  .m-step-preview { min-height: auto !important; }
+
+  /* Watermarks — scale down so they don't overwhelm mobile */
+  .m-num        { font-size: 120px !important; }
+  .m-centerword { font-size: 52px !important; letter-spacing: -2px !important; }
+
+  /* Footer */
+  .m-footer { padding: 40px 20px 0 !important; }
+  .m-footer-grid {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 32px !important;
+  }
+  .m-footer-brand { grid-column: 1 / -1 !important; }
+
+  /* Footer mini roadmap */
+  .m-footer-roadmap { justify-content: center !important; gap: 0 !important; }
+  .m-footer-node {
+    width: 34px !important;
+    height: 34px !important;
+    font-size: 15px !important;
+  }
+  .m-footer-conn { width: 22px !important; }
+
+  /* Copyright */
+  .m-copyright {
+    flex-direction: column !important;
+    align-items: center !important;
+    gap: 6px !important;
+    padding: 16px 0 !important;
+  }
+}
