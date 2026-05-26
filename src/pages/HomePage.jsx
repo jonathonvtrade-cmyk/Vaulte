@@ -6,16 +6,73 @@ import MessageBubble from "../components/MessageBubble"
 import WelcomePopup from "../components/WelcomePopup"
 import { supabase } from "../supabaseClient"
 
-/* ── Static fallback ticker messages ── */
+/* ── Ticker fallback (8 exact messages from spec) ── */
 const FALLBACK_TICKER = [
   { msg: "Jake K. just completed Step 4 in Trading" },
   { msg: "Sara R. just joined Freelancing" },
   { msg: "Devon L. hit step 8 of his roadmap" },
-  { msg: "Alex R. just joined Affiliate Marketing" },
-  { msg: "Taylor K. completed the full Trading roadmap" },
+  { msg: "Taylor K. completed the full roadmap" },
   { msg: "Morgan S. posted in the Dropshipping community" },
   { msg: "Riley T. just joined AI Tools" },
-  { msg: "Casey B. completed Step 2 in Content Creation" },
+  { msg: "Casey S. hit step 5 in Freelancing" },
+  { msg: "Alex R. completed his Trading roadmap" },
+]
+
+/* ── 14 hero background card data ── */
+const HERO_CARD_DATA = [
+  // Row 1
+  { type: "review",            niche: "TRADING",      name: "Jordan M.", quote: "Better than 3 years of YouTube." },
+  { type: "mentor",            niche: "TRADING",      quote: "Before anything: risk management. Most beginners skip this and blow their account.", progress: { step: 3, total: 12 } },
+  { type: "mentor",            niche: "CONTENT",      quote: "Your hook is everything. First 3 seconds don't grab? They scroll." },
+  { type: "review",            niche: "FREELANCING",  name: "Sara K.",   quote: "First client week 2. Roadmap told me exactly what to say." },
+  // Row 2 (2 cards)
+  { type: "roadmap",           steps: [
+      { label: "Start Here",      done: true,  current: false },
+      { label: "Learn Basics",    done: true,  current: false },
+      { label: "Risk Management", done: false, current: true  },
+      { label: "Build Strategy",  done: false, current: false },
+    ]},
+  { type: "community",         members: [
+      { init: "JK", name: "Jake K.",   msg: "Just hit step 8 🔥"   },
+      { init: "RM", name: "Rachel M.", msg: "First sale done 💰"    },
+      { init: "AS", name: "Alex S.",   msg: "30 days of content!"  },
+    ]},
+  // Row 3
+  { type: "mentor",            niche: "FREELANCING",  quote: "Never charge hourly. Price per project — triples income." },
+  { type: "review",            niche: "DROPSHIPPING", name: "Devon L.",  quote: "Stopped losing money after step 3." },
+  { type: "mentor",            niche: "AFFILIATE",    quote: "One niche. One product. One traffic source. Master that first." },
+  { type: "review",            niche: "AI TOOLS",     name: "Marcus R.", quote: "Automated workflow in 2 weeks. Mentor nailed it." },
+  // Row 4
+  { type: "review",            niche: "AFFILIATE",    name: "Alex R.",   quote: "$1200 passive last month." },
+  { type: "mentor",            niche: "DROPSHIPPING", quote: "Your margin needs to be 40%+ after ALL fees. Account for everything." },
+  { type: "review",            niche: "CONTENT",      name: "Taylor K.", quote: "10k followers in 6 weeks. Roadmap step by step." },
+  { type: "roadmap-progress",  step: 7, total: 12, pct: 58 },
+]
+
+/* Absolute positions for each card */
+const CARD_POSITIONS = [
+  { top: 16,  left: "1%"   },  // 0 – Row 1
+  { top: 16,  left: "21%"  },  // 1
+  { top: 16,  right: "21%" },  // 2
+  { top: 16,  right: "1%"  },  // 3
+  { top: 190, left: "1%"   },  // 4 – Row 2
+  { top: 190, right: "1%"  },  // 5
+  { top: 370, left: "1%"   },  // 6 – Row 3
+  { top: 370, left: "21%"  },  // 7
+  { top: 370, right: "21%" },  // 8
+  { top: 370, right: "1%"  },  // 9
+  { top: 540, left: "1%"   },  // 10 – Row 4
+  { top: 540, left: "21%"  },  // 11
+  { top: 540, right: "21%" },  // 12
+  { top: 540, right: "1%"  },  // 13
+]
+
+/* Float animation name + duration for each card */
+const CARD_ANIMS = [
+  "fc0 7s", "fc1 8s",   "fc2 6.5s", "fc3 9s",
+  "fc4 7.5s", "fc5 8.5s",
+  "fc6 6s",  "fc7 7s",  "fc8 8s",   "fc9 6.5s",
+  "fc10 9s", "fc11 7.5s","fc12 8.5s","fc13 6s",
 ]
 
 /* ── Static data ── */
@@ -26,36 +83,35 @@ const roadmapNodes = [
   { emoji: "🧠", label: "Build Strategy"  },
   { emoji: "🏆", label: "Reach Your Goal", glow: true },
 ]
-
 const communityAvatars = [
   { init: "JK" }, { init: "RM" }, { init: "AS" }, { init: "BT" },
   { init: "CL" }, { init: "DP" }, { init: "EW" }, { init: "FN" },
 ]
-
 const activityCards = [
   { init: "JK", name: "Jake K.",   msg: "Just closed my first freelance client after following the roadmap. The AI mentor was incredible." },
   { init: "RM", name: "Rachel M.", msg: "3 weeks into trading and I finally understand risk management. This platform changed everything." },
   { init: "AS", name: "Alex S.",   msg: "Posted my first piece of content today. The community feedback helped me push through." },
 ]
-
 const step1Bullets = [
   { title: "AI trained on your niche only",      sub: "Not a generic chatbot. A focused expert that knows your exact path."  },
   { title: "Step by step roadmap built for you", sub: "No missing steps. No wasted time. Everything in the right order."     },
   { title: "Available 24/7, never judgemental",  sub: "Ask anything. No stupid questions. Your mentor is always ready."      },
 ]
-
 const previewNiches = [
   { name: "Trading",      icon: "📈", sub: "Markets & Strategy" },
   { name: "Dropshipping", icon: "📦", sub: "Products & Stores"  },
   { name: "Freelancing",  icon: "💻", sub: "Clients & Scaling"  },
   { name: "Content",      icon: "🎬", sub: "Audience & Brand"   },
 ]
-
 const STACKED_INITS = ["JK", "RM", "AS", "BT", "CL"]
 
 /* ── Utility ── */
-const Divider = () => (
-  <div style={{ width: "100%", height: "1px", flexShrink: 0, background: "linear-gradient(to right, transparent, #1f1f1f 20%, #1f1f1f 80%, transparent)" }} />
+const NeonDivider = () => (
+  <div style={{
+    width: "100%", height: "1px", flexShrink: 0,
+    background: "#d00000",
+    boxShadow: "0 0 10px rgba(208,0,0,0.7), 0 0 20px rgba(208,0,0,0.3)",
+  }} />
 )
 const Num = ({ n }) => (
   <div className="m-num" style={{ position: "absolute", top: "-40px", left: "-10px", fontSize: "320px", fontWeight: 900, lineHeight: 1, color: "white", opacity: 0.025, pointerEvents: "none", userSelect: "none", letterSpacing: "-16px", zIndex: 0 }}>{n}</div>
@@ -64,102 +120,84 @@ const CenterWord = ({ word, size }) => (
   <div className="m-centerword" style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%,-50%)", fontSize: `${size}px`, fontWeight: 900, color: "#d00000", opacity: 0.03, pointerEvents: "none", userSelect: "none", zIndex: 0, letterSpacing: "-8px", whiteSpace: "nowrap" }}>{word}</div>
 )
 
-/* ── Floating Card sub-components ── */
-function CardMentor() {
-  return (
-    <div style={{ background: "#111", border: "1px solid #1f1f1f", borderRadius: "14px", padding: "16px", width: "220px" }}>
-      <div style={{ fontSize: "9px", fontWeight: 800, color: "#d00000", letterSpacing: "0.12em", marginBottom: "10px" }}>🤖 AI MENTOR</div>
-      <div style={{ fontSize: "11px", color: "#888", lineHeight: "1.6", marginBottom: "14px" }}>
-        "Great progress on risk management! Step 3 is where it all starts to click. Keep going."
-      </div>
-      <div style={{ fontSize: "9px", color: "#555", fontWeight: 700, marginBottom: "6px" }}>STEP 3 OF 12 COMPLETE</div>
-      <div style={{ background: "#1a1a1a", borderRadius: "99px", height: "4px", overflow: "hidden" }}>
-        <div style={{ height: "100%", width: "25%", background: "#d00000", borderRadius: "99px" }} />
-      </div>
+/* ── Hero background card renderer ── */
+function HeroCard({ data }) {
+  if (data.type === "review") return (
+    <div>
+      <div style={{ fontSize: "9px", fontWeight: 800, color: "#555", letterSpacing: "0.08em", marginBottom: "5px" }}>⭐⭐⭐⭐⭐ {data.niche}</div>
+      <div style={{ fontSize: "9px", fontWeight: 700, color: "#888", marginBottom: "4px" }}>{data.name}</div>
+      <div style={{ fontSize: "9px", color: "#444", lineHeight: "1.5", fontStyle: "italic" }}>"{data.quote}"</div>
     </div>
   )
-}
-
-function CardCommunity({ posts }) {
-  const rows = posts.length > 0
-    ? posts.slice(0,3).map((p, i) => ({
-        init: (p.profiles?.first_name?.[0] || "?").toUpperCase(),
-        name: p.profiles ? `${p.profiles.first_name || ""} ${(p.profiles.last_name || "")[0] || ""}.`.trim() : "Member",
-        msg:  (p.content || "").slice(0, 40) + ((p.content?.length > 40) ? "…" : ""),
-        niche: p.niche,
-      }))
-    : [
-        { init: "JK", name: "Jake K.",   msg: "Just hit step 8 in Trading 🔥"    },
-        { init: "RM", name: "Rachel M.", msg: "First affiliate sale done 💰"       },
-        { init: "AS", name: "Alex S.",   msg: "30 days of content — still going!" },
-      ]
-  return (
-    <div style={{ background: "#111", border: "1px solid #1f1f1f", borderRadius: "14px", padding: "16px", width: "220px" }}>
-      <div style={{ fontSize: "9px", fontWeight: 800, color: "#00cc66", letterSpacing: "0.12em", marginBottom: "10px" }}>
-        <span style={{ display: "inline-block", width: "6px", height: "6px", borderRadius: "50%", background: "#00cc66", marginRight: "5px", verticalAlign: "middle" }} />
+  if (data.type === "mentor") return (
+    <div>
+      <div style={{ fontSize: "9px", fontWeight: 800, color: "#d00000", letterSpacing: "0.08em", marginBottom: "5px" }}>🤖 {data.niche} MENTOR</div>
+      <div style={{ fontSize: "9px", color: "#666", lineHeight: "1.5", marginBottom: data.progress ? "8px" : 0, fontStyle: "italic" }}>"{data.quote}"</div>
+      {data.progress && (
+        <>
+          <div style={{ fontSize: "8px", color: "#555", marginBottom: "3px" }}>STEP {data.progress.step} OF {data.progress.total}</div>
+          <div style={{ background: "#1a1a1a", borderRadius: "99px", height: "3px", overflow: "hidden" }}>
+            <div style={{ height: "100%", width: `${Math.round((data.progress.step / data.progress.total) * 100)}%`, background: "#d00000", borderRadius: "99px" }} />
+          </div>
+        </>
+      )}
+    </div>
+  )
+  if (data.type === "community") return (
+    <div>
+      <div style={{ fontSize: "9px", fontWeight: 800, color: "#00cc66", letterSpacing: "0.08em", marginBottom: "7px" }}>
+        <span style={{ display: "inline-block", width: "5px", height: "5px", borderRadius: "50%", background: "#00cc66", marginRight: "4px", verticalAlign: "middle" }} />
         COMMUNITY LIVE
       </div>
-      <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-        {rows.map((r, i) => (
-          <div key={i} style={{ display: "flex", gap: "8px", alignItems: "flex-start" }}>
-            <div style={{ width: "24px", height: "24px", borderRadius: "50%", background: "#1a0000", border: "1px solid #d00000", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "8px", fontWeight: 800, color: "#d00000", flexShrink: 0 }}>{r.init}</div>
+      <div style={{ display: "flex", flexDirection: "column", gap: "5px" }}>
+        {data.members.map((row, i) => (
+          <div key={i} style={{ display: "flex", gap: "5px", alignItems: "center" }}>
+            <div style={{ width: "18px", height: "18px", borderRadius: "50%", background: "#1a0000", border: "1px solid #d00000", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "7px", fontWeight: 800, color: "#d00000", flexShrink: 0 }}>{row.init}</div>
             <div>
-              <div style={{ fontSize: "10px", fontWeight: 700, color: "white" }}>{r.name}</div>
-              <div style={{ fontSize: "9px", color: "#555", lineHeight: "1.4" }}>{r.msg}</div>
+              <div style={{ fontSize: "8px", fontWeight: 700, color: "#888" }}>{row.name}</div>
+              <div style={{ fontSize: "8px", color: "#444" }}>{row.msg}</div>
             </div>
           </div>
         ))}
       </div>
     </div>
   )
-}
-
-function CardRoadmap() {
-  const steps = [
-    { label: "Start Here",      done: true,    current: false },
-    { label: "Learn the Basics", done: true,   current: false },
-    { label: "Risk Management", done: false,   current: true  },
-    { label: "Build Strategy",  done: false,   current: false },
-  ]
-  return (
-    <div style={{ background: "#111", border: "1px solid #1f1f1f", borderRadius: "14px", padding: "16px", width: "200px" }}>
-      <div style={{ fontSize: "9px", fontWeight: 800, color: "#d00000", letterSpacing: "0.12em", marginBottom: "12px" }}>🗺️ ROADMAP</div>
-      <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-        {steps.map((s, i) => (
-          <div key={i} style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+  if (data.type === "roadmap") return (
+    <div>
+      <div style={{ fontSize: "9px", fontWeight: 800, color: "#d00000", letterSpacing: "0.08em", marginBottom: "7px" }}>🗺️ ROADMAP</div>
+      <div style={{ display: "flex", flexDirection: "column", gap: "5px" }}>
+        {data.steps.map((step, i) => (
+          <div key={i} style={{ display: "flex", alignItems: "center", gap: "5px" }}>
             <div style={{
-              width: "10px", height: "10px", borderRadius: "50%", flexShrink: 0,
-              background: s.done ? "#d00000" : "transparent",
-              border: s.done ? "2px solid #d00000" : s.current ? "2px solid #d00000" : "2px solid #333",
-              boxShadow: s.current ? "0 0 6px rgba(208,0,0,0.7)" : "none",
-              animation: s.current ? "online-dot 1.5s ease-in-out infinite" : "none",
+              width: "7px", height: "7px", borderRadius: "50%", flexShrink: 0,
+              background: step.done ? "#d00000" : "transparent",
+              border: step.done ? "1.5px solid #d00000" : step.current ? "1.5px solid #d00000" : "1.5px solid #333",
+              boxShadow: step.current ? "0 0 4px rgba(208,0,0,0.7)" : "none",
             }} />
-            <div style={{ fontSize: "10px", fontWeight: s.current ? 700 : 500, color: s.done ? "#d00000" : s.current ? "white" : "#333" }}>
-              {s.label}
-            </div>
+            <div style={{ fontSize: "8px", color: step.done ? "#d00000" : step.current ? "white" : "#333", fontWeight: step.current ? 700 : 400 }}>{step.label}</div>
           </div>
         ))}
       </div>
     </div>
   )
-}
-
-function CardAffiliateWin() {
-  return (
-    <div style={{ background: "#111", border: "1px solid #1f1f1f", borderRadius: "14px", padding: "16px", width: "200px", textAlign: "center" }}>
-      <div style={{ fontSize: "9px", fontWeight: 800, color: "#d00000", letterSpacing: "0.12em", marginBottom: "12px" }}>💰 AFFILIATE WIN</div>
-      <div style={{ fontSize: "26px", fontWeight: 900, color: "white", letterSpacing: "-1px", marginBottom: "4px" }}>$1,247.50</div>
-      <div style={{ fontSize: "10px", color: "#555", marginBottom: "10px" }}>passive this month</div>
-      <div style={{ display: "inline-block", background: "#001a0d", border: "1px solid #00cc66", color: "#00cc66", fontSize: "9px", fontWeight: 700, padding: "3px 8px", borderRadius: "99px" }}>
-        ↑ +23% this week
+  if (data.type === "roadmap-progress") return (
+    <div>
+      <div style={{ fontSize: "9px", fontWeight: 800, color: "#d00000", letterSpacing: "0.08em", marginBottom: "6px" }}>🗺️ ROADMAP</div>
+      <div style={{ fontSize: "9px", fontWeight: 700, color: "#888", marginBottom: "6px" }}>Step {data.step} of {data.total} complete</div>
+      <div style={{ background: "#1a1a1a", borderRadius: "99px", height: "3px", overflow: "hidden", marginBottom: "4px" }}>
+        <div style={{ height: "100%", width: `${data.pct}%`, background: "#d00000", borderRadius: "99px" }} />
       </div>
+      <div style={{ fontSize: "8px", color: "#d00000" }}>{data.pct}% complete</div>
     </div>
   )
+  return null
 }
 
 /* ── Page ── */
 export default function HomePage() {
-  const hiw = useRef(null)
+  const hiw           = useRef(null)
+  const cardRefs      = useRef([])
+  const activeHl      = useRef(null)   // index of currently highlighted card
 
   /* Typewriter */
   const [line1,     setLine1]     = useState("")
@@ -174,19 +212,19 @@ export default function HomePage() {
   const [communityCardCount, setCommunityCardCount]  = useState(0)
 
   /* Data from Supabase */
-  const [memberCount,   setMemberCount]   = useState(2341)
-  const [tickerItems,   setTickerItems]   = useState(FALLBACK_TICKER)
-  const [communityPosts,setCommunityPosts]= useState([])
+  const [memberCount,    setMemberCount]    = useState(2341)
+  const [tickerItems,    setTickerItems]    = useState(FALLBACK_TICKER)
+  const [communityPosts, setCommunityPosts] = useState([])
 
   const [showWelcome, setShowWelcome] = useState(false)
 
   const niches = [
-    { name: "Trading",          icon: "📈", desc: "Learn the markets, manage risk and build a strategy that actually works." },
-    { name: "Dropshipping",     icon: "📦", desc: "Find winning products, set margins right and build your first store."      },
-    { name: "Freelancing",      icon: "💻", desc: "Land clients, price your work and scale without burning out."             },
-    { name: "Content Creation", icon: "🎬", desc: "Grow an audience, monetize your content and build a real brand."          },
-    { name: "Affiliate Marketing", icon: "💰", desc: "Promote products, earn commissions, and build passive income streams." },
-    { name: "AI Tools",         icon: "🤖", desc: "Use AI to automate, build products and stay ahead of everyone else."      },
+    { name: "Trading",           icon: "📈", desc: "Learn the markets, manage risk and build a strategy that actually works." },
+    { name: "Dropshipping",      icon: "📦", desc: "Find winning products, set margins right and build your first store."      },
+    { name: "Freelancing",       icon: "💻", desc: "Land clients, price your work and scale without burning out."             },
+    { name: "Content Creation",  icon: "🎬", desc: "Grow an audience, monetize your content and build a real brand."          },
+    { name: "Affiliate Marketing",icon:"💰", desc: "Promote products, earn commissions, and build passive income streams."    },
+    { name: "AI Tools",          icon: "🤖", desc: "Use AI to automate, build products and stay ahead of everyone else."      },
   ]
 
   /* ── Typewriter ── */
@@ -208,6 +246,43 @@ export default function HomePage() {
       }
     }, 60)
     return () => clearInterval(iv1)
+  }, [])
+
+  /* ── Card highlight interval (1800ms, 1s on then off) ── */
+  useEffect(() => {
+    const interval = setInterval(() => {
+      /* Clear previous highlight */
+      if (activeHl.current !== null) {
+        const prev = cardRefs.current[activeHl.current]
+        if (prev) {
+          prev.style.border    = "1px solid #1f1f1f"
+          prev.style.boxShadow = "none"
+          prev.style.opacity   = "0.15"
+        }
+      }
+      /* Pick new random card */
+      const idx = Math.floor(Math.random() * 14)
+      activeHl.current = idx
+      const el = cardRefs.current[idx]
+      if (el) {
+        el.style.border    = "1px solid #d00000"
+        el.style.boxShadow = "0 0 14px rgba(208,0,0,0.4)"
+        el.style.opacity   = "0.28"
+        const captured = idx
+        setTimeout(() => {
+          if (activeHl.current === captured) {
+            const same = cardRefs.current[captured]
+            if (same) {
+              same.style.border    = "1px solid #1f1f1f"
+              same.style.boxShadow = "none"
+              same.style.opacity   = "0.15"
+            }
+            activeHl.current = null
+          }
+        }, 1000)
+      }
+    }, 1800)
+    return () => clearInterval(interval)
   }, [])
 
   /* ── Step 01 card cycle ── */
@@ -253,8 +328,10 @@ export default function HomePage() {
   /* ── Member count (real, poll every 30s) ── */
   useEffect(() => {
     const fetchCount = async () => {
-      const { count } = await supabase.from("profiles").select("id", { count: "exact", head: true })
-      if (count) setMemberCount(count)
+      try {
+        const { count } = await supabase.from("profiles").select("id", { count: "exact", head: true })
+        if (count) setMemberCount(count)
+      } catch {}
     }
     fetchCount()
     const t = setInterval(fetchCount, 30000)
@@ -293,20 +370,15 @@ export default function HomePage() {
             .order("updated_at", { ascending: false })
             .limit(5),
         ])
-
         const items = []
-        if (posts) {
-          posts.forEach(p => {
-            const name = p.profiles ? `${p.profiles.first_name || ""} ${(p.profiles.last_name?.[0] || "")}.`.trim() : "A member"
-            items.push({ msg: `${name} just posted in ${p.niche}` })
-          })
-        }
-        if (completions) {
-          completions.forEach(c => {
-            const name = c.profiles ? `${c.profiles.first_name || ""} ${(c.profiles.last_name?.[0] || "")}.`.trim() : "A member"
-            items.push({ msg: `${name} just completed Step ${(c.step_index || 0) + 1} in ${c.niche}` })
-          })
-        }
+        if (posts) posts.forEach(p => {
+          const name = p.profiles ? `${p.profiles.first_name || ""} ${(p.profiles.last_name?.[0] || "")}.`.trim() : "A member"
+          items.push({ msg: `${name} just posted in ${p.niche}` })
+        })
+        if (completions) completions.forEach(c => {
+          const name = c.profiles ? `${c.profiles.first_name || ""} ${(c.profiles.last_name?.[0] || "")}.`.trim() : "A member"
+          items.push({ msg: `${name} just completed Step ${(c.step_index || 0) + 1} in ${c.niche}` })
+        })
         if (items.length > 0) setTickerItems(items)
       } catch {}
     }
@@ -316,10 +388,10 @@ export default function HomePage() {
   }, [])
 
   const scrollToHIW = () => {
-    hiw.current?.scrollIntoView({ behavior: "smooth" })
+    const el = hiw.current || document.getElementById("how-it-works")
+    el?.scrollIntoView({ behavior: "smooth" })
   }
 
-  /* ── Doubled ticker list for seamless loop ── */
   const tickerDouble = [...tickerItems, ...tickerItems]
 
   return (
@@ -327,6 +399,7 @@ export default function HomePage() {
 
       {showWelcome && <WelcomePopup onClose={() => setShowWelcome(false)} />}
       <Navbar />
+      <NeonDivider />
 
       {/* ── Activity Ticker ── */}
       <div style={{
@@ -336,11 +409,10 @@ export default function HomePage() {
         overflow: "hidden",
         display: "flex",
         alignItems: "center",
-        position: "relative",
         WebkitMaskImage: "linear-gradient(to right, transparent, black 6%, black 94%, transparent)",
         maskImage: "linear-gradient(to right, transparent, black 6%, black 94%, transparent)",
       }}>
-        <div className="ticker-track" style={{ display: "flex", gap: "0", alignItems: "center", whiteSpace: "nowrap" }}>
+        <div className="ticker-track" style={{ display: "flex", alignItems: "center", whiteSpace: "nowrap" }}>
           {tickerDouble.map((item, i) => (
             <span key={i} style={{ display: "inline-flex", alignItems: "center", gap: "8px", paddingRight: "60px", fontSize: "11px", color: "#555", fontWeight: 600 }}>
               <span className="ticker-dot" style={{ width: "6px", height: "6px", borderRadius: "50%", background: "#00cc66", display: "inline-block", flexShrink: 0 }} />
@@ -349,43 +421,84 @@ export default function HomePage() {
           ))}
         </div>
       </div>
+      <NeonDivider />
 
-      {/* ── Hero wrapper (relative for absolute float cards + scanline) ── */}
-      <div style={{ position: "relative", overflow: "hidden", width: "100%" }}>
+      {/* ── Hero (680px fixed height) ── */}
+      <div style={{ position: "relative", height: "680px", overflow: "hidden", width: "100%" }}>
+
+        {/* SVG dot matrix background */}
+        <svg
+          style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, width: "100%", height: "100%", zIndex: 0 }}
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <defs>
+            <pattern id="hero-dots" x="0" y="0" width="24" height="24" patternUnits="userSpaceOnUse">
+              <circle cx="1" cy="1" r="1" fill="#d00000" fillOpacity="0.08" />
+            </pattern>
+          </defs>
+          <rect width="100%" height="100%" fill="url(#hero-dots)" />
+        </svg>
 
         {/* Scanline */}
         <div className="hero-scanline" />
 
-        {/* ── Floating Cards ── */}
-        <div className="hero-floats">
-          {/* Card 1 — top left — Trading Mentor */}
-          <div className="hero-card-1" style={{ position: "absolute", top: "40px", left: "32px", opacity: 0.18, zIndex: 0, pointerEvents: "none" }}>
-            <CardMentor />
-          </div>
-          {/* Card 2 — top right — Community */}
-          <div className="hero-card-2" style={{ position: "absolute", top: "30px", right: "32px", opacity: 0.18, zIndex: 0, pointerEvents: "none" }}>
-            <CardCommunity posts={communityPosts} />
-          </div>
-          {/* Card 3 — bottom left — Roadmap */}
-          <div className="hero-card-3" style={{ position: "absolute", bottom: "40px", left: "48px", opacity: 0.18, zIndex: 0, pointerEvents: "none" }}>
-            <CardRoadmap />
-          </div>
-          {/* Card 4 — bottom right — Affiliate Win */}
-          <div className="hero-card-4" style={{ position: "absolute", bottom: "40px", right: "48px", opacity: 0.18, zIndex: 0, pointerEvents: "none" }}>
-            <CardAffiliateWin />
-          </div>
+        {/* ── 14 floating background cards ── */}
+        <div className="hero-bg-cards">
+          {HERO_CARD_DATA.map((data, i) => {
+            const pos = CARD_POSITIONS[i]
+            return (
+              <div
+                key={i}
+                ref={el => { cardRefs.current[i] = el }}
+                style={{
+                  position: "absolute",
+                  top: pos.top,
+                  ...(pos.left  !== undefined && { left:  pos.left  }),
+                  ...(pos.right !== undefined && { right: pos.right }),
+                  width: "158px",
+                  background: "#111",
+                  border: "1px solid #1f1f1f",
+                  borderRadius: "12px",
+                  padding: "11px",
+                  opacity: 0.15,
+                  zIndex: 1,
+                  pointerEvents: "none",
+                  userSelect: "none",
+                  animation: `${CARD_ANIMS[i]} ease-in-out infinite`,
+                  transition: "border 0.3s ease, box-shadow 0.3s ease, opacity 0.3s ease",
+                }}
+              >
+                <HeroCard data={data} />
+              </div>
+            )
+          })}
         </div>
 
-        {/* ── Hero Content ── */}
-        <div className="m-hero" style={{ position: "relative", zIndex: 1, display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center", padding: "90px 80px 64px", maxWidth: "1000px", margin: "0 auto", width: "100%" }}>
-
+        {/* ── Hero center content ── */}
+        <div
+          className="m-hero"
+          style={{
+            position: "absolute",
+            top: 0, right: 0, bottom: 0, left: 0,
+            zIndex: 2,
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            textAlign: "center",
+            padding: "0 24px",
+          }}
+        >
           {/* Badge */}
-          <div style={{ display: "inline-block", background: "#1a0000", color: "#d00000", border: "1px solid #3a0000", padding: "5px 14px", borderRadius: "99px", fontSize: "11px", fontWeight: 700, marginBottom: "28px", letterSpacing: "0.1em" }}>
+          <div style={{ display: "inline-block", background: "#1a0000", color: "#d00000", border: "1px solid #3a0000", padding: "5px 14px", borderRadius: "99px", fontSize: "11px", fontWeight: 700, marginBottom: "24px", letterSpacing: "0.1em" }}>
             AI MENTORS FOR EVERY NICHE
           </div>
 
-          {/* Typewriter */}
-          <div className="m-hero-title" style={{ fontSize: "76px", fontWeight: 900, lineHeight: "1.08", letterSpacing: "-3px", marginBottom: "28px", minHeight: "170px", width: "100%" }}>
+          {/* Heading (typewriter) */}
+          <div
+            className="m-hero-title"
+            style={{ fontSize: "48px", fontWeight: 900, letterSpacing: "-3px", lineHeight: "1.08", marginBottom: "22px", minHeight: "108px" }}
+          >
             <div style={{ color: "white" }}>
               {line1}<span style={{ color: "#d00000", animation: !showLine2 ? "blink 1s infinite" : "none", opacity: !showLine2 ? 1 : 0 }}>|</span>
             </div>
@@ -397,19 +510,15 @@ export default function HomePage() {
           </div>
 
           {/* Subtitle */}
-          <div className="m-hero-sub" style={{ fontSize: "16px", color: "#555", marginBottom: "40px", lineHeight: "1.8", maxWidth: "560px" }}>
+          <div className="m-hero-sub" style={{ fontSize: "15px", color: "#555", marginBottom: "34px", lineHeight: "1.8", maxWidth: "520px" }}>
             Skip 100 hours of YouTube. Get a niche AI mentor, a real roadmap, and a community that&apos;s already done it.
           </div>
 
-          {/* CTA Buttons */}
-          <div style={{ display: "flex", gap: "12px", flexWrap: "wrap", justifyContent: "center", marginBottom: "28px" }}>
+          {/* CTA buttons */}
+          <div style={{ display: "flex", gap: "12px", flexWrap: "wrap", justifyContent: "center", marginBottom: "24px" }}>
             <Link
               to="/explore"
-              style={{
-                display: "inline-block", background: "#d00000", color: "white", textDecoration: "none",
-                padding: "18px 40px", borderRadius: "8px", fontSize: "15px", fontWeight: 900,
-                whiteSpace: "nowrap", transition: "opacity 0.2s",
-              }}
+              style={{ display: "inline-block", background: "#d00000", color: "white", textDecoration: "none", padding: "16px 36px", borderRadius: "8px", fontSize: "14px", fontWeight: 900, whiteSpace: "nowrap", transition: "opacity 0.2s" }}
               onMouseEnter={e => e.currentTarget.style.opacity = "0.85"}
               onMouseLeave={e => e.currentTarget.style.opacity = "1"}
             >
@@ -417,12 +526,7 @@ export default function HomePage() {
             </Link>
             <button
               onClick={scrollToHIW}
-              style={{
-                background: "transparent", color: "#aaa", border: "1px solid #333",
-                padding: "18px 32px", borderRadius: "8px", fontSize: "15px", fontWeight: 700,
-                cursor: "pointer", fontFamily: "'Inter', sans-serif", whiteSpace: "nowrap",
-                transition: "border-color 0.2s, color 0.2s",
-              }}
+              style={{ background: "transparent", color: "#aaa", border: "1px solid #333", padding: "16px 28px", borderRadius: "8px", fontSize: "14px", fontWeight: 700, cursor: "pointer", fontFamily: "'Inter', sans-serif", whiteSpace: "nowrap", transition: "border-color 0.2s, color 0.2s" }}
               onMouseEnter={e => { e.currentTarget.style.borderColor = "#555"; e.currentTarget.style.color = "white" }}
               onMouseLeave={e => { e.currentTarget.style.borderColor = "#333"; e.currentTarget.style.color = "#aaa"  }}
             >
@@ -432,7 +536,6 @@ export default function HomePage() {
 
           {/* Stacked avatars + member count */}
           <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-            {/* Overlapping circles */}
             <div style={{ display: "flex" }}>
               {STACKED_INITS.map((init, i) => (
                 <div key={i} style={{
@@ -453,10 +556,9 @@ export default function HomePage() {
           </div>
         </div>
       </div>
+      <NeonDivider />
 
-      <Divider />
-
-      {/* ── Marquee ── */}
+      {/* ── Marquee / Pick your niche ── */}
       <div style={{ width: "100%", padding: "60px 0 72px" }}>
         <p className="m-marquee-label" style={{ fontSize: "11px", color: "#444", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.12em", marginBottom: "28px", paddingLeft: "80px" }}>Pick your niche</p>
         <div style={{ overflow: "hidden", width: "100%", WebkitMaskImage: "linear-gradient(to right, transparent, black 8%, black 92%, transparent)", maskImage: "linear-gradient(to right, transparent, black 8%, black 92%, transparent)" }}>
@@ -472,8 +574,7 @@ export default function HomePage() {
           </div>
         </div>
       </div>
-
-      <Divider />
+      <NeonDivider />
 
       {/* ── How It Works ── */}
       <div id="how-it-works" ref={hiw} style={{ width: "100%", padding: "100px 0 0" }}>
@@ -532,7 +633,7 @@ export default function HomePage() {
             </div>
           </div>
 
-          <Divider />
+          <NeonDivider />
 
           {/* Step 02 */}
           <div className="m-step" style={{ position: "relative", overflow: "hidden", padding: "56px 80px" }}>
@@ -570,7 +671,7 @@ export default function HomePage() {
             </div>
           </div>
 
-          <Divider />
+          <NeonDivider />
 
           {/* Step 03 */}
           <div className="m-step" style={{ position: "relative", overflow: "hidden", padding: "56px 80px" }}>
@@ -613,7 +714,7 @@ export default function HomePage() {
         </div>
       </div>
 
-      <Divider />
+      <NeonDivider />
       <Footer />
       <MessageBubble />
     </div>

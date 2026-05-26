@@ -96,10 +96,10 @@ body {
 
 /* Ask AI nav link — blue text-shadow glow pulse */
 @keyframes ask-ai-glow {
-  0%, 100% { text-shadow: 0 0 6px rgba(0,136,255,0.4), 0 0 12px rgba(0,136,255,0.2); }
-  50%       { text-shadow: 0 0 14px rgba(0,136,255,0.8), 0 0 28px rgba(0,136,255,0.4); }
+  0%, 100% { text-shadow: 0 0 8px #0088ff, 0 0 20px rgba(0,136,255,0.5); }
+  50%       { text-shadow: 0 0 4px #0088ff; }
 }
-.ask-ai-link { animation: ask-ai-glow 2.4s ease-in-out infinite; }
+.ask-ai-link { animation: ask-ai-glow 2s ease-in-out infinite; }
 
 /* General Support sidebar card — blue border glow */
 @keyframes general-support-glow {
@@ -202,8 +202,8 @@ body {
 
 /* ── Logo neon E glow ── */
 @keyframes logo-neon {
-  0%, 100% { text-shadow: 0 0 8px #d00000, 0 0 20px rgba(208,0,0,0.5), 0 0 40px rgba(208,0,0,0.2); }
-  50%       { text-shadow: 0 0 4px #d00000, 0 0 8px rgba(208,0,0,0.3); }
+  0%, 100% { text-shadow: 0 0 8px #d00000, 0 0 20px rgba(208,0,0,0.5); }
+  50%       { text-shadow: 0 0 4px #d00000; }
 }
 .logo-neon-e { animation: logo-neon 2s ease-in-out infinite; }
 
@@ -215,6 +215,24 @@ body {
   92%                 { opacity: 0.3; }
 }
 .logo-flicker { animation: logo-flicker 4s ease-in-out infinite; }
+
+/* ── Hero background cards (14-card grid, fc0–fc13) ── */
+@keyframes fc0  { 0%,100%{transform:translateY(0px)} 50%{transform:translateY(-10px)} }
+@keyframes fc1  { 0%,100%{transform:translateY(0px)} 50%{transform:translateY(-14px)} }
+@keyframes fc2  { 0%,100%{transform:translateY(0px)} 50%{transform:translateY(-8px)}  }
+@keyframes fc3  { 0%,100%{transform:translateY(0px)} 50%{transform:translateY(-12px)} }
+@keyframes fc4  { 0%,100%{transform:translateY(0px)} 33%{transform:translateY(-11px)} 66%{transform:translateY(6px)} }
+@keyframes fc5  { 0%,100%{transform:translateY(0px)} 50%{transform:translateY(-9px)}  }
+@keyframes fc6  { 0%,100%{transform:translateY(0px)} 50%{transform:translateY(-13px)} }
+@keyframes fc7  { 0%,100%{transform:translateY(0px)} 50%{transform:translateY(-7px)}  }
+@keyframes fc8  { 0%,100%{transform:translateY(0px)} 50%{transform:translateY(-11px)} }
+@keyframes fc9  { 0%,100%{transform:translateY(0px)} 50%{transform:translateY(-14px)} }
+@keyframes fc10 { 0%,100%{transform:translateY(0px)} 50%{transform:translateY(-8px)}  }
+@keyframes fc11 { 0%,100%{transform:translateY(0px)} 50%{transform:translateY(-12px)} }
+@keyframes fc12 { 0%,100%{transform:translateY(0px)} 50%{transform:translateY(-9px)}  }
+@keyframes fc13 { 0%,100%{transform:translateY(0px)} 50%{transform:translateY(-13px)} }
+.hero-bg-cards { display: block; }
+@media (max-width: 1199px) { .hero-bg-cards { display: none !important; } }
 
 /* ── Mobile overrides (max-width: 768px) ── */
 @media (max-width: 768px) {
