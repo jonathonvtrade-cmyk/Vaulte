@@ -45,6 +45,7 @@ export default function SignupPage() {
           id:         signUpData.user.id,
           first_name: firstName.trim(),
           last_name:  lastName.trim(),
+          email:      email.trim(),
           plan:       "free",
           role:       "user",
         }, { onConflict: "id", ignoreDuplicates: false })

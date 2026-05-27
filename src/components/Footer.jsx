@@ -63,13 +63,17 @@ const platformLinks = [
 ]
 
 const companyLinks = [
-  { label: "About",   to: "/about"   },
-  { label: "Pricing", to: "/pricing" },
-  { label: "Blog",    to: "#"        },
-  { label: "Contact", to: "#"        },
+  { label: "About",   to: "/about"    },
+  { label: "Pricing", to: "/pricing"  },
+  { label: "Blog",    to: "/blog"     },
+  { label: "Contact", to: "/contact"  },
 ]
 
-const legalLinks = ["Privacy", "Terms", "Cookies"]
+const legalLinks = [
+  { label: "Privacy", to: "/privacy" },
+  { label: "Terms",   to: "/terms"   },
+  { label: "Cookies", to: "/cookies" },
+]
 
 export default function Footer() {
   const [footerProgress, setFooterProgress] = useState(0)
@@ -182,11 +186,11 @@ export default function Footer() {
         <div>
           <div style={{ fontSize: "10px", color: "#333", textTransform: "uppercase", letterSpacing: "0.12em", marginBottom: "20px" }}>LEGAL</div>
           <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
-            {legalLinks.map(link => (
-              <a key={link} href="#" style={linkStyle}
+            {legalLinks.map(({ label, to }) => (
+              <Link key={label} to={to} style={linkStyle}
                 onMouseEnter={e => e.currentTarget.style.color = "#d00000"}
                 onMouseLeave={e => e.currentTarget.style.color = "#555"}
-              >{link}</a>
+              >{label}</Link>
             ))}
           </div>
         </div>

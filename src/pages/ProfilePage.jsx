@@ -13,7 +13,7 @@ const TOTAL_STEPS = 10
 const PLATFORMS = ["Instagram","TikTok","Twitter","YouTube","GitHub","Other"]
 const PLATFORM_ICONS = { Instagram:"📷", TikTok:"🎵", Twitter:"🐦", YouTube:"▶️", GitHub:"💻", Other:"🔗" }
 
-const sidebarSections = ["Overview","My Roadmap","AI Mentor","Community","About","Settings","Billing"]
+const sidebarSections = ["Overview","My Roadmap","AI Mentor","Community","Messages","About","Settings","Billing"]
 
 function Toggle({ checked, onChange }) {
   return (
@@ -212,9 +212,12 @@ export default function ProfilePage() {
   }
 
   const handleSectionChange = (section) => {
+    if (section === "My Roadmap") { navigate("/roadmap");    return }
+    if (section === "AI Mentor")  { navigate("/mentor");     return }
+    if (section === "Community")  { navigate("/community");  return }
+    if (section === "Messages")   { navigate("/messages");   return }
+    if (section === "Billing")    { navigate("/pricing");    return }
     setActiveSection(section)
-    if (section==="My Roadmap" && user) fetchNicheDetail(user.id, selectedNiche)
-    if (section==="Community"  && user) fetchCommunityPosts(user.id)
   }
 
   const handleLogout = async () => { await supabase.auth.signOut(); navigate("/") }
@@ -272,10 +275,10 @@ export default function ProfilePage() {
               onMouseEnter={e=>e.currentTarget.style.opacity="0.85"}
               onMouseLeave={e=>e.currentTarget.style.opacity="1"}
             >📊 Analytics</Link>
-            <button onClick={()=>setShowAnnounce(true)} style={{ display:"inline-flex", alignItems:"center", gap:"8px", background:"#d00000", color:"white", border:"none", padding:"10px 18px", borderRadius:"8px", fontSize:"13px", fontWeight:800, cursor:"pointer", fontFamily:"'Inter',sans-serif", transition:"opacity 0.2s" }}
+            <Link to="/admin/announce" style={{ display:"inline-flex", alignItems:"center", gap:"8px", background:"#d00000", color:"white", textDecoration:"none", padding:"10px 18px", borderRadius:"8px", fontSize:"13px", fontWeight:800, transition:"opacity 0.2s" }}
               onMouseEnter={e=>e.currentTarget.style.opacity="0.85"}
               onMouseLeave={e=>e.currentTarget.style.opacity="1"}
-            >📢 Announce</button>
+            >📢 Announce</Link>
             <Link to="/admin/users" style={{ display:"inline-flex", alignItems:"center", gap:"8px", background:"#d00000", color:"white", textDecoration:"none", padding:"10px 18px", borderRadius:"8px", fontSize:"13px", fontWeight:800, transition:"opacity 0.2s" }}
               onMouseEnter={e=>e.currentTarget.style.opacity="0.85"}
               onMouseLeave={e=>e.currentTarget.style.opacity="1"}

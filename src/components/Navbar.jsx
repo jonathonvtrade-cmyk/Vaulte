@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react"
 import { Link, useNavigate } from "react-router-dom"
 import { supabase } from "../supabaseClient"
 import VerifiedBadge from "./VerifiedBadge"
+import AnnouncementBanner from "./AnnouncementBanner"
 
 const navLinks = [
   { label: "Explore",   to: "/explore"   },
@@ -71,10 +72,13 @@ export default function Navbar() {
   const fetchProfile = async (uid) => {
     const { data } = await supabase
       .from("profiles")
-      .select("first_name, last_name, plan, avatar_url, role")
+      .select("first_name, last_name, plan, avatar_url, role, banned")
       .eq("id", uid)
       .single()
     setProfile(data)
+    if (data?.banned && window.location.pathname !== "/banned") {
+      navigate("/banned")
+    }
   }
 
   const handleLogout = async () => {
@@ -90,6 +94,7 @@ export default function Navbar() {
   const isVerified = role === "admin" || role === "founder"
 
   return (
+    <>
     <div
       className="m-navbar"
       style={{
@@ -219,5 +224,7 @@ export default function Navbar() {
         >Join free</Link>
       )}
     </div>
+    <AnnouncementBanner />
+    </>
   )
 }

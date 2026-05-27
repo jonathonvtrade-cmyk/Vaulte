@@ -234,6 +234,21 @@ body {
 .hero-bg-cards { display: block; }
 @media (max-width: 1199px) { .hero-bg-cards { display: none !important; } }
 
+/* ── About page founder avatar spinning border ── */
+@keyframes spin-ring {
+  from { transform: rotate(0deg);   }
+  to   { transform: rotate(360deg); }
+}
+.founder-ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  border-top-color: #d00000;
+  border-right-color: #d00000;
+  animation: spin-ring 2.8s linear infinite;
+}
+
 /* ── Mobile overrides (max-width: 768px) ── */
 @media (max-width: 768px) {
   /* Navbar */
