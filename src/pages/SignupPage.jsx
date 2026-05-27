@@ -64,7 +64,7 @@ export default function SignupPage() {
             last_name:  lastName.trim(),
             email:      email.trim(),
             plan:       "free",
-            role:       "user",
+            role:       "user", // always 'user' — admin is set only via SQL migration
           },
           { onConflict: "id" }
         )

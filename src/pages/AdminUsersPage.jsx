@@ -4,6 +4,8 @@ import Navbar from "../components/Navbar"
 import Footer from "../components/Footer"
 import { supabase } from "../supabaseClient"
 
+const ADMIN_EMAIL = "jonathon8604@gmail.com"
+
 const NeonDivider = () => (
   <div style={{ width: "100%", height: "1px", background: "#d00000", boxShadow: "0 0 10px rgba(208,0,0,0.7), 0 0 20px rgba(208,0,0,0.3)" }} />
 )
@@ -20,7 +22,7 @@ export default function AdminUsersPage() {
       const { data: { session } } = await supabase.auth.getSession()
       if (!session) { navigate("/login"); return }
       const { data: profile } = await supabase.from("profiles").select("role").eq("id", session.user.id).single()
-      if (profile?.role !== "admin" && profile?.role !== "founder") { navigate("/"); return }
+      if ((profile?.role !== "admin" && profile?.role !== "founder") || session.user.email !== ADMIN_EMAIL) { navigate("/"); return }
       await fetchUsers()
       setLoading(false)
     }

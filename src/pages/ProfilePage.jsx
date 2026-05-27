@@ -6,6 +6,8 @@ import MessageBubble from "../components/MessageBubble"
 import VerifiedBadge from "../components/VerifiedBadge"
 import { supabase } from "../supabaseClient"
 
+const ADMIN_EMAIL = "jonathon8604@gmail.com"
+
 const nicheList  = ["Trading","Dropshipping","Freelancing","Content Creation","Affiliate Marketing","AI Tools"]
 const nicheIcons = { Trading:"📈", Dropshipping:"📦", Freelancing:"💻", "Content Creation":"🎬", "Affiliate Marketing":"💰", "AI Tools":"🤖" }
 const TOTAL_STEPS = 10
@@ -241,7 +243,7 @@ export default function ProfilePage() {
   const plan         = profile?.plan   ?? "free"
   const role         = profile?.role   ?? "user"
   const avatarUrl    = profile?.avatar_url ?? null
-  const isAdmin      = role==="admin" || role==="founder"
+  const isAdmin      = (role==="admin" || role==="founder") && user?.email === ADMIN_EMAIL
   const isVerified   = isAdmin
   const memberSince  = profile?.created_at ? new Date(profile.created_at).toLocaleDateString("en-US",{month:"long",year:"numeric"}) : "—"
   const daysActive   = profile?.created_at ? Math.max(1,Math.floor((Date.now()-new Date(profile.created_at))/86400000)) : 0

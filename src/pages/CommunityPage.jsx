@@ -6,6 +6,8 @@ import MessageBubble from "../components/MessageBubble"
 import VerifiedBadge from "../components/VerifiedBadge"
 import { supabase } from "../supabaseClient"
 
+const ADMIN_EMAIL = "jonathon8604@gmail.com"
+
 const NICHES = ["All", "Trading", "Dropshipping", "Freelancing", "Content Creation", "Affiliate Marketing", "AI Tools"]
 const POST_TYPES = ["WIN", "QUESTION", "TIP", "UPDATE"]
 
@@ -66,17 +68,17 @@ export default function CommunityPage() {
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (!session) { navigate("/login"); return }
       setUser(session.user)
-      fetchProfile(session.user.id)
+      fetchProfile(session.user.id, session.user.email)
       fetchPosts()
     })
   }, [])
 
   useEffect(() => { fetchPosts() }, [filter])
 
-  const fetchProfile = async (uid) => {
+  const fetchProfile = async (uid, email) => {
     const { data } = await supabase.from("profiles").select("first_name, last_name, plan, role").eq("id", uid).single()
     setProfile(data)
-    if (data?.role === "admin" || data?.role === "founder") setIsAdmin(true)
+    if ((data?.role === "admin" || data?.role === "founder") && email === ADMIN_EMAIL) setIsAdmin(true)
   }
 
   const deletePost = async (postId) => {
@@ -358,8 +360,8 @@ export default function CommunityPage() {
                           <span style={{ fontSize: "13px", fontWeight: 700, color: "white" }}>
                             {post.author_name || "Anonymous"}
                           </span>
-                          {/* Show verified badge on current user's posts if they're admin/founder */}
-                          {post.user_id === user?.id && (profile?.role === "admin" || profile?.role === "founder") && (
+                          {/* Show verified badge on current user's posts if they're admin */}
+                          {post.user_id === user?.id && (profile?.role === "admin" || profile?.role === "founder") && user?.email === ADMIN_EMAIL && (
                             <VerifiedBadge size={15} />
                           )}
                           {/* Niche tag */}

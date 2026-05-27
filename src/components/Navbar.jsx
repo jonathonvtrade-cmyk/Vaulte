@@ -4,6 +4,8 @@ import { supabase } from "../supabaseClient"
 import VerifiedBadge from "./VerifiedBadge"
 import AnnouncementBanner from "./AnnouncementBanner"
 
+const ADMIN_EMAIL = "jonathon8604@gmail.com"
+
 const navLinks = [
   { label: "Explore",   to: "/explore"   },
   { label: "Roadmap",   to: "/roadmap"   },
@@ -91,7 +93,7 @@ export default function Navbar() {
   const plan       = profile?.plan       ?? "free"
   const role       = profile?.role       ?? "user"
   const avatarUrl  = profile?.avatar_url ?? null
-  const isVerified = role === "admin" || role === "founder"
+  const isVerified = (role === "admin" || role === "founder") && user?.email === ADMIN_EMAIL
 
   return (
     <>
