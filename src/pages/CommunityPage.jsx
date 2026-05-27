@@ -81,10 +81,14 @@ export default function CommunityPage() {
     if ((data?.role === "admin" || data?.role === "founder") && email === ADMIN_EMAIL) setIsAdmin(true)
   }
 
-  const deletePost = async (postId) => {
+  const deletePost = async (postId, asAdmin) => {
     if (deleting === postId) return
     setDeleting(postId)
-    await supabase.from("community_posts").delete().eq("id", postId)
+    // Admin: delete by id only (RLS allows admin to delete any row)
+    // Own post: add user_id constraint as extra safety
+    let q = supabase.from("community_posts").delete().eq("id", postId)
+    if (!asAdmin) q = q.eq("user_id", user.id)
+    await q
     setPosts(prev => prev.filter(p => p.id !== postId))
     setDeleting(null)
   }
@@ -310,10 +314,10 @@ export default function CommunityPage() {
                   >
                     {/* Top row */}
                     <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "14px", position: "relative" }}>
-                      {/* Admin delete button */}
+                      {/* Admin delete — red trash on every post */}
                       {isAdmin && (
                         <button
-                          onClick={() => deletePost(post.id)}
+                          onClick={() => deletePost(post.id, true)}
                           disabled={deleting === post.id}
                           title="Delete post (admin)"
                           style={{
@@ -334,6 +338,34 @@ export default function CommunityPage() {
                           }}
                           onMouseEnter={e => { if (deleting !== post.id) { e.currentTarget.style.background = "#1a0000"; e.currentTarget.style.borderColor = "#d00000" }}}
                           onMouseLeave={e => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.borderColor = "#3a0000" }}
+                        >
+                          {deleting === post.id ? "…" : "🗑"}
+                        </button>
+                      )}
+                      {/* Own-post delete — grey trash, only on user's own posts when not admin */}
+                      {!isAdmin && post.user_id === user?.id && (
+                        <button
+                          onClick={() => deletePost(post.id, false)}
+                          disabled={deleting === post.id}
+                          title="Delete your post"
+                          style={{
+                            position: "absolute",
+                            top: "-4px",
+                            right: "-4px",
+                            background: "transparent",
+                            border: "1px solid #2a2a2a",
+                            borderRadius: "6px",
+                            color: deleting === post.id ? "#333" : "#555",
+                            fontSize: "12px",
+                            cursor: deleting === post.id ? "not-allowed" : "pointer",
+                            padding: "2px 6px",
+                            lineHeight: 1,
+                            fontFamily: "'Inter', sans-serif",
+                            transition: "background 0.2s, border-color 0.2s, color 0.2s",
+                            opacity: deleting === post.id ? 0.5 : 1,
+                          }}
+                          onMouseEnter={e => { if (deleting !== post.id) { e.currentTarget.style.borderColor = "#555"; e.currentTarget.style.color = "#aaa" }}}
+                          onMouseLeave={e => { e.currentTarget.style.borderColor = "#2a2a2a"; e.currentTarget.style.color = "#555" }}
                         >
                           {deleting === post.id ? "…" : "🗑"}
                         </button>
