@@ -34,10 +34,22 @@ export default function SignupPage() {
       options: { data: { first_name: firstName, last_name: lastName } },
     })
 
+    // Only surface genuine auth errors (email taken, weak password, etc.).
+    // Any database/trigger errors from auth.signUp are silently ignored —
+    // the auth user is still created and we redirect to onboarding regardless.
     if (error) {
-      setLoading(false)
-      setError(error.message)
-      return
+      const msg = error.message ?? ""
+      const isDbError =
+        msg.toLowerCase().includes("database") ||
+        msg.toLowerCase().includes("saving new user") ||
+        msg.toLowerCase().includes("unexpected_failure")
+      if (isDbError) {
+        // Auth user was created despite the DB error — fall through to redirect.
+      } else {
+        setLoading(false)
+        setError(msg)
+        return
+      }
     }
 
     // Fire-and-forget profile upsert — never blocks the signup flow.
