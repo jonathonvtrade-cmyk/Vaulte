@@ -41,6 +41,7 @@ export default function CommunityPage() {
   const navigate  = useNavigate()
   const [user,         setUser]         = useState(null)
   const [profile,      setProfile]      = useState(null)
+  const [isAdmin,      setIsAdmin]      = useState(false)
   const [posts,        setPosts]        = useState([])
   const [filter,       setFilter]       = useState("All")
   const [postType,     setPostType]     = useState("WIN")
@@ -49,6 +50,7 @@ export default function CommunityPage() {
   const [loading,      setLoading]      = useState(true)
   const [postNiche,    setPostNiche]    = useState("Trading")
   const [liking,       setLiking]       = useState(null)
+  const [deleting,     setDeleting]     = useState(null)
   const textRef = useRef(null)
 
   /* ── Mock sidebar data ── */
@@ -72,8 +74,17 @@ export default function CommunityPage() {
   useEffect(() => { fetchPosts() }, [filter])
 
   const fetchProfile = async (uid) => {
-    const { data } = await supabase.from("profiles").select("first_name, last_name, plan").eq("id", uid).single()
+    const { data } = await supabase.from("profiles").select("first_name, last_name, plan, role").eq("id", uid).single()
     setProfile(data)
+    if (data?.role === "admin" || data?.role === "founder") setIsAdmin(true)
+  }
+
+  const deletePost = async (postId) => {
+    if (deleting === postId) return
+    setDeleting(postId)
+    await supabase.from("community_posts").delete().eq("id", postId)
+    setPosts(prev => prev.filter(p => p.id !== postId))
+    setDeleting(null)
   }
 
   const fetchPosts = async () => {
@@ -296,7 +307,35 @@ export default function CommunityPage() {
                     }}
                   >
                     {/* Top row */}
-                    <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "14px" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "14px", position: "relative" }}>
+                      {/* Admin delete button */}
+                      {isAdmin && (
+                        <button
+                          onClick={() => deletePost(post.id)}
+                          disabled={deleting === post.id}
+                          title="Delete post (admin)"
+                          style={{
+                            position: "absolute",
+                            top: "-4px",
+                            right: "-4px",
+                            background: "transparent",
+                            border: "1px solid #3a0000",
+                            borderRadius: "6px",
+                            color: deleting === post.id ? "#555" : "#d00000",
+                            fontSize: "12px",
+                            cursor: deleting === post.id ? "not-allowed" : "pointer",
+                            padding: "2px 6px",
+                            lineHeight: 1,
+                            fontFamily: "'Inter', sans-serif",
+                            transition: "background 0.2s, border-color 0.2s",
+                            opacity: deleting === post.id ? 0.5 : 1,
+                          }}
+                          onMouseEnter={e => { if (deleting !== post.id) { e.currentTarget.style.background = "#1a0000"; e.currentTarget.style.borderColor = "#d00000" }}}
+                          onMouseLeave={e => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.borderColor = "#3a0000" }}
+                        >
+                          {deleting === post.id ? "…" : "🗑"}
+                        </button>
+                      )}
                       {/* Avatar */}
                       <div style={{
                         width: "38px",

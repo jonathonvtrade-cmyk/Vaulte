@@ -490,14 +490,14 @@ export default function HomePage() {
           }}
         >
           {/* Badge */}
-          <div style={{ display: "inline-block", background: "#1a0000", color: "#d00000", border: "1px solid #3a0000", padding: "5px 14px", borderRadius: "99px", fontSize: "11px", fontWeight: 700, marginBottom: "24px", letterSpacing: "0.1em" }}>
+          <div style={{ display: "inline-block", background: "#1a0000", color: "#d00000", border: "1px solid #3a0000", padding: "5px 14px", borderRadius: "99px", fontSize: "12px", fontWeight: 700, marginBottom: "24px", letterSpacing: "0.18em" }}>
             AI MENTORS FOR EVERY NICHE
           </div>
 
           {/* Heading (typewriter) */}
           <div
             className="m-hero-title"
-            style={{ fontSize: "48px", fontWeight: 900, letterSpacing: "-3px", lineHeight: "1.08", marginBottom: "22px", minHeight: "108px" }}
+            style={{ fontSize: "64px", fontWeight: 900, letterSpacing: "-3px", lineHeight: "1.08", marginBottom: "22px", minHeight: "142px" }}
           >
             <div style={{ color: "white" }}>
               {line1}<span style={{ color: "#d00000", animation: !showLine2 ? "blink 1s infinite" : "none", opacity: !showLine2 ? 1 : 0 }}>|</span>
@@ -510,7 +510,7 @@ export default function HomePage() {
           </div>
 
           {/* Subtitle */}
-          <div className="m-hero-sub" style={{ fontSize: "15px", color: "#555", marginBottom: "34px", lineHeight: "1.8", maxWidth: "520px" }}>
+          <div className="m-hero-sub" style={{ fontSize: "16px", color: "#555", marginBottom: "34px", lineHeight: "1.8", maxWidth: "500px" }}>
             Skip 100 hours of YouTube. Get a niche AI mentor, a real roadmap, and a community that&apos;s already done it.
           </div>
 
@@ -518,7 +518,7 @@ export default function HomePage() {
           <div style={{ display: "flex", gap: "12px", flexWrap: "wrap", justifyContent: "center", marginBottom: "24px" }}>
             <Link
               to="/explore"
-              style={{ display: "inline-block", background: "#d00000", color: "white", textDecoration: "none", padding: "16px 36px", borderRadius: "8px", fontSize: "14px", fontWeight: 900, whiteSpace: "nowrap", transition: "opacity 0.2s" }}
+              style={{ display: "inline-block", background: "#d00000", color: "white", textDecoration: "none", padding: "16px 36px", borderRadius: "8px", fontSize: "15px", fontWeight: 900, whiteSpace: "nowrap", transition: "opacity 0.2s" }}
               onMouseEnter={e => e.currentTarget.style.opacity = "0.85"}
               onMouseLeave={e => e.currentTarget.style.opacity = "1"}
             >
@@ -526,7 +526,7 @@ export default function HomePage() {
             </Link>
             <button
               onClick={scrollToHIW}
-              style={{ background: "transparent", color: "#aaa", border: "1px solid #333", padding: "16px 28px", borderRadius: "8px", fontSize: "14px", fontWeight: 700, cursor: "pointer", fontFamily: "'Inter', sans-serif", whiteSpace: "nowrap", transition: "border-color 0.2s, color 0.2s" }}
+              style={{ background: "transparent", color: "#aaa", border: "1px solid #333", padding: "16px 36px", borderRadius: "8px", fontSize: "15px", fontWeight: 700, cursor: "pointer", fontFamily: "'Inter', sans-serif", whiteSpace: "nowrap", transition: "border-color 0.2s, color 0.2s" }}
               onMouseEnter={e => { e.currentTarget.style.borderColor = "#555"; e.currentTarget.style.color = "white" }}
               onMouseLeave={e => { e.currentTarget.style.borderColor = "#333"; e.currentTarget.style.color = "#aaa"  }}
             >

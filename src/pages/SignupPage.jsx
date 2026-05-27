@@ -37,15 +37,18 @@ export default function SignupPage() {
       setError(error.message)
       return
     }
-    // Manually upsert profiles row so it always exists from day one
+    // Manually upsert profiles row — wrapped in try/catch so a DB trigger
+    // race condition never blocks the user from reaching onboarding
     if (signUpData?.user?.id) {
-      await supabase.from("profiles").upsert({
-        id:         signUpData.user.id,
-        first_name: firstName.trim(),
-        last_name:  lastName.trim(),
-        plan:       "free",
-        role:       "user",
-      }, { onConflict: "id" })
+      try {
+        await supabase.from("profiles").upsert({
+          id:         signUpData.user.id,
+          first_name: firstName.trim(),
+          last_name:  lastName.trim(),
+          plan:       "free",
+          role:       "user",
+        }, { onConflict: "id", ignoreDuplicates: false })
+      } catch (_) { /* ignore — trigger may have already created the row */ }
     }
     setLoading(false)
     navigate("/onboarding")
