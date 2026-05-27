@@ -27,30 +27,39 @@ export default function SignupPage() {
     e.preventDefault()
     setError("")
     setLoading(true)
-    const { data: signUpData, error } = await supabase.auth.signUp({
+
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: { data: { first_name: firstName, last_name: lastName } },
     })
+
     if (error) {
       setLoading(false)
       setError(error.message)
       return
     }
-    // Manually upsert profiles row — wrapped in try/catch so a DB trigger
-    // race condition never blocks the user from reaching onboarding
-    if (signUpData?.user?.id) {
-      try {
-        await supabase.from("profiles").upsert({
-          id:         signUpData.user.id,
-          first_name: firstName.trim(),
-          last_name:  lastName.trim(),
-          email:      email.trim(),
-          plan:       "free",
-          role:       "user",
-        }, { onConflict: "id", ignoreDuplicates: false })
-      } catch (_) { /* ignore — trigger may have already created the row */ }
+
+    // Fire-and-forget profile upsert — never blocks the signup flow.
+    // The DB trigger is dropped (migration_006); we own profile creation here.
+    if (data?.user?.id) {
+      supabase
+        .from("profiles")
+        .upsert(
+          {
+            id:         data.user.id,
+            first_name: firstName.trim(),
+            last_name:  lastName.trim(),
+            email:      email.trim(),
+            plan:       "free",
+            role:       "user",
+          },
+          { onConflict: "id" }
+        )
+        .then(() => {})
+        .catch(() => {})
     }
+
     setLoading(false)
     navigate("/onboarding")
   }
