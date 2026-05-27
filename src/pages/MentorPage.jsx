@@ -5,7 +5,8 @@ import Footer from "../components/Footer"
 import MessageBubble from "../components/MessageBubble"
 import { supabase } from "../supabaseClient"
 
-const FREE_LIMIT = 5
+const FREE_LIMIT  = 5
+const ADMIN_EMAIL = "jonathonv.trade@gmail.com"
 
 const DOT_BG = `#0d0d0d url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24'%3E%3Ccircle cx='1' cy='1' r='1' fill='%23d00000' fill-opacity='0.12'/%3E%3C/svg%3E") repeat`
 
@@ -27,6 +28,7 @@ export default function MentorPage() {
   const [user,             setUser]             = useState(null)
   const [profile,          setProfile]          = useState(null)
   const [isPro,            setIsPro]            = useState(false)
+  const [isAdmin,          setIsAdmin]          = useState(false)
   const [freeMentors,      setFreeMentors]      = useState(["Trading", "Freelancing"])
   const [selected,         setSelected]         = useState(MENTORS[0])
   const [messages,         setMessages]         = useState([])
@@ -41,7 +43,7 @@ export default function MentorPage() {
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (!session) { navigate("/login"); return }
       setUser(session.user)
-      fetchProfileAndSetup(session.user.id)
+      fetchProfileAndSetup(session.user.id, session.user.email)
       fetchMessageCount(session.user.id)
     })
   }, [])
@@ -61,10 +63,12 @@ export default function MentorPage() {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" })
   }, [messages, loading])
 
-  const fetchProfileAndSetup = async (uid) => {
-    const { data } = await supabase.from("profiles").select("first_name, plan, onboarding_answers").eq("id", uid).single()
+  const fetchProfileAndSetup = async (uid, email) => {
+    const { data } = await supabase.from("profiles").select("first_name, plan, role, onboarding_answers").eq("id", uid).single()
     setProfile(data)
-    const pro = data?.plan === "pro" || data?.plan === "team"
+    const admin = (data?.role === "admin" || data?.role === "founder") && email === ADMIN_EMAIL
+    const pro   = admin || data?.plan === "pro" || data?.plan === "team"
+    setIsAdmin(admin)
     setIsPro(pro)
     if (!pro) {
       const picked = data?.onboarding_answers?.mentors
@@ -105,7 +109,11 @@ export default function MentorPage() {
 
   const sendMessage = async () => {
     if (!input.trim() || loading || !user) return
-    if (!isPro && !selected.isGeneral && todayCount >= FREE_LIMIT) { setShowPaywall(true); return }
+    // Block free non-admin users at daily limit (skip for pro, admin, and General chat)
+    if (!isPro && !isAdmin && !selected.isGeneral && todayCount >= FREE_LIMIT) {
+      setShowPaywall(true)
+      return
+    }
 
     const userMsg = { role: "user", content: input.trim() }
     setMessages(prev => [...prev, userMsg])
@@ -114,19 +122,25 @@ export default function MentorPage() {
     await saveChatMessage(user.id, "user", userMsg.content)
 
     try {
+      // Build history: all messages except the initial welcome (index 0), plus new user message
       const history = [...messages.slice(1), userMsg].map(m => ({ role: m.role, content: m.content }))
-      const res  = await fetch("/api/chat", {
+      const res = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ messages: history, niche: selected.id }),
       })
       const json = await res.json()
-      const aiMsg = { role: "assistant", content: json.content || "Sorry, I couldn't generate a response." }
+      if (!res.ok) throw new Error(json.error || "API error")
+      const aiMsg = { role: "assistant", content: json.response || "Sorry, I couldn't generate a response." }
       setMessages(prev => [...prev, aiMsg])
       await saveChatMessage(user.id, "assistant", aiMsg.content)
-      if (!selected.isGeneral) updateMessageCount(user.id)
-    } catch {
-      setMessages(prev => [...prev, { role: "assistant", content: "Something went wrong. Please try again." }])
+      // Only count niche messages for free users (not admin, not general)
+      if (!selected.isGeneral && !isAdmin) updateMessageCount(user.id)
+    } catch (err) {
+      setMessages(prev => [...prev, {
+        role: "assistant",
+        content: "Something went wrong — please try again. If this keeps happening, refresh the page.",
+      }])
     }
     setLoading(false)
     inputRef.current?.focus()
