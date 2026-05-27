@@ -17,32 +17,67 @@ const systemPrompts = {
 }
 
 export default async function handler(req, res) {
+  console.log('[chat] handler invoked — method:', req.method)
+
   res.setHeader('Access-Control-Allow-Origin', '*')
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS')
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type')
 
-  if (req.method === 'OPTIONS') return res.status(200).end()
-  if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' })
+  if (req.method === 'OPTIONS') {
+    console.log('[chat] OPTIONS preflight — returning 200')
+    return res.status(200).end()
+  }
+
+  if (req.method !== 'POST') {
+    console.log('[chat] wrong method:', req.method)
+    return res.status(405).json({ error: 'Method not allowed' })
+  }
 
   const { messages, niche } = req.body ?? {}
-  if (!messages || !Array.isArray(messages) || !niche) {
-    return res.status(400).json({ error: 'Missing messages or niche' })
+  console.log('[chat] niche:', niche, '| messages count:', Array.isArray(messages) ? messages.length : 'NOT_ARRAY')
+
+  if (!messages || !Array.isArray(messages) || messages.length === 0) {
+    console.log('[chat] bad request — missing or invalid messages')
+    return res.status(400).json({ error: 'messages must be a non-empty array' })
+  }
+  if (!niche) {
+    console.log('[chat] bad request — missing niche')
+    return res.status(400).json({ error: 'niche is required' })
   }
 
   const system = systemPrompts[niche]
     ?? `You are an expert ${niche} mentor on Vaulte. Be direct, practical, and actionable.`
 
+  console.log('[chat] system prompt selected for niche:', niche, '| prompt length:', system.length)
+
+  // Confirm API key is present (do NOT log the key value itself)
+  if (!process.env.ANTHROPIC_API_KEY) {
+    console.error('[chat] ANTHROPIC_API_KEY is not set — check Vercel environment variables')
+    return res.status(500).json({ error: 'Server configuration error: missing API key' })
+  }
+  console.log('[chat] ANTHROPIC_API_KEY present — length:', process.env.ANTHROPIC_API_KEY.length)
+
   try {
+    console.log('[chat] initialising Anthropic client')
     const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
+
+    console.log('[chat] calling client.messages.create — model: claude-sonnet-4-20250514, max_tokens: 1024')
     const result = await client.messages.create({
       model: 'claude-sonnet-4-20250514',
       max_tokens: 1024,
       system,
       messages,
     })
-    res.status(200).json({ response: result.content[0].text })
+
+    const text = result.content?.[0]?.text
+    console.log('[chat] success — response length:', text?.length ?? 0)
+    res.status(200).json({ response: text ?? '' })
   } catch (err) {
-    console.error('Anthropic API error:', err)
-    res.status(500).json({ error: err.message ?? 'Failed to get AI response' })
+    console.error('[chat] Anthropic API error — status:', err.status, '| message:', err.message)
+    console.error('[chat] full error:', JSON.stringify(err, Object.getOwnPropertyNames(err)))
+    res.status(500).json({
+      error: err.message ?? 'Failed to get AI response',
+      status: err.status ?? null,
+    })
   }
 }
