@@ -4,7 +4,7 @@ import { supabase } from "../supabaseClient"
 import VerifiedBadge from "./VerifiedBadge"
 import AnnouncementBanner from "./AnnouncementBanner"
 
-const ADMIN_EMAIL = "jonathon8604@gmail.com"
+const ADMIN_EMAIL = "jonathonv.trade@gmail.com"
 
 const navLinks = [
   { label: "Explore",   to: "/explore"   },

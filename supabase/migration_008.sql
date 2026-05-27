@@ -1,6 +1,6 @@
--- migration_007.sql
--- Ensure only the correct account has admin role.
--- All other accounts are reset to 'user'.
+-- migration_008.sql
+-- Correct admin email — was incorrectly set to jonathon8604@gmail.com.
+-- Only jonathonv.trade@gmail.com should have admin role.
 
 UPDATE profiles
 SET role = 'admin'

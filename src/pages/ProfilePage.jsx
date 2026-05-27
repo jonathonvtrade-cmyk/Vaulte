@@ -6,7 +6,7 @@ import MessageBubble from "../components/MessageBubble"
 import VerifiedBadge from "../components/VerifiedBadge"
 import { supabase } from "../supabaseClient"
 
-const ADMIN_EMAIL = "jonathon8604@gmail.com"
+const ADMIN_EMAIL = "jonathonv.trade@gmail.com"
 
 const nicheList  = ["Trading","Dropshipping","Freelancing","Content Creation","Affiliate Marketing","AI Tools"]
 const nicheIcons = { Trading:"📈", Dropshipping:"📦", Freelancing:"💻", "Content Creation":"🎬", "Affiliate Marketing":"💰", "AI Tools":"🤖" }
