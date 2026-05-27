@@ -61,9 +61,9 @@ export default async function handler(req, res) {
     console.log('[chat] initialising Anthropic client')
     const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
 
-    console.log('[chat] calling client.messages.create — model: claude-sonnet-4-20250514, max_tokens: 1024')
+    console.log('[chat] calling client.messages.create — model: claude-sonnet-4-5, max_tokens: 1024')
     const result = await client.messages.create({
-      model: 'claude-sonnet-4-20250514',
+      model: 'claude-sonnet-4-5',
       max_tokens: 1024,
       system,
       messages,
